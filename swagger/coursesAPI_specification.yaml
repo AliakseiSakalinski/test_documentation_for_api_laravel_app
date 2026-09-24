@@ -1,0 +1,276 @@
+openapi: 3.0.0
+info:
+  title: coursesAPI_collection
+  version: 1.0.0
+  description: API for managing courses, categories, and teachers.
+
+servers:
+  - url: /api
+    description: Base URL for all endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Enter your valid Bearer Token for authorization.
+
+  schemas:
+    CourseCreate:
+      type: object
+      required:
+        - name
+        - price
+        - category_id
+        - teacher_id
+      properties:
+        name:
+          type: string
+          example: "Advanced QA"
+        price:
+          type: integer
+          example: 9900
+        description:
+          type: string
+          example: "Mastering advanced QA"
+        category_id:
+          type: integer
+          example: 1
+        teacher_id:
+          type: integer
+          example: 1
+
+    CourseUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Completely Updated Course Title"
+        price:
+          type: integer
+          example: 12500
+
+    Category:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "DevOps & Infrastructure"
+
+    Teacher:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "Jane Doe"
+        description:
+          type: string
+          example: "Expert Cloud Infrastructure Specialist."
+
+security:
+  - BearerAuth: []
+
+paths:
+  /user:
+    get:
+      summary: Get user profile
+      description: Returns the profile of the currently authenticated user.
+      responses:
+        '200':
+          description: Successful response
+        '401':
+          description: Unauthorized request (token is missing or invalid)
+
+  /courses:
+    get:
+      summary: Retrieve all courses
+      responses:
+        '200':
+          description: List of courses successfully retrieved
+        '401':
+          description: Authorization failure
+
+    post:
+      summary: Create a new course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCreate'
+      responses:
+        '201':
+          description: Course successfully created
+        '400':
+          description: Validation error or invalid data types
+        '401':
+          description: Authorization failure
+
+  /courses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Course ID
+    get:
+      summary: Get a single course
+      responses:
+        '200':
+          description: Course data successfully retrieved
+        '401':
+          description: Authorization failure
+        '404':
+          description: Course not found
+    put:
+      summary: Update a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseUpdate'
+      responses:
+        '200':
+          description: Course successfully updated
+        '400':
+          description: Invalid data inputs
+        '401':
+          description: Authorization failure
+        '404':
+          description: Course not found
+    delete:
+      summary: Delete a course
+      responses:
+        '200':
+          description: Course successfully deleted
+        '401':
+          description: Authorization failure
+        '404':
+          description: Course not found (or already deleted)
+
+  /categories:
+    get:
+      summary: Retrieve all categories
+      responses:
+        '200':
+          description: List of categories successfully retrieved
+        '401':
+          description: Authorization failure
+    post:
+      summary: Create a new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '201':
+          description: Category successfully created
+        '400':
+          description: Character limit exceeded or invalid format
+        '401':
+          description: Authorization failure
+
+  /categories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Category ID (supports SQL injection checks)
+    get:
+      summary: Get a single category
+      responses:
+        '200':
+          description: Category found
+        '401':
+          description: Authorization failure
+    put:
+      summary: Update a category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: Category successfully updated
+        '401':
+          description: Authorization failure
+    delete:
+      summary: Delete a category & cascade database check
+      description: Deletes the category and performs a cascade verification check in the database.
+      responses:
+        '200':
+          description: Category successfully deleted
+        '401':
+          description: Authorization failure
+
+  /teachers:
+    get:
+      summary: Retrieve all teachers
+      responses:
+        '200':
+          description: List of teachers successfully retrieved
+        '401':
+          description: Authorization failure
+    post:
+      summary: Create a new teacher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+      responses:
+        '201':
+          description: Teacher successfully created
+        '400':
+          description: Broken content formatting or invalid payload
+        '401':
+          description: Authorization failure
+
+  /teachers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Teacher ID
+    get:
+      summary: Get a single teacher
+      responses:
+        '200':
+          description: Teacher found
+        '401':
+          description: Authorization failure
+    put:
+      summary: Update a teacher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+      responses:
+        '200':
+          description: Teacher data successfully updated
+        '401':
+          description: Authorization failure
+    delete:
+      summary: Delete a teacher & cascade verification
+      responses:
+        '200':
+          description: Teacher successfully deleted
+        '401':
+          description: Authorization failure
